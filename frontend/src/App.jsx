@@ -5,7 +5,7 @@ function App() {
 
   return (
     <>
-      
+      <h1>Exam Platform</h1>
     </>
   )
 }
