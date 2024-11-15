@@ -12,15 +12,13 @@ const Login = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
-    // Email validation
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
-    // Password validation
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
@@ -33,31 +31,50 @@ const Login = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
-    // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: '',
       }));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setIsLoading(true);
-    // Simulate login success
-    setTimeout(() => {
-      console.log('Login successful:', formData);
+    setErrors({});
+
+    try {
+      const response = await fetch('http://localhost:5000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Something went wrong');
+      }
+
+      const data = await response.json();
+      console.log('Login successful:', data);
+      localStorage.setItem('token', data.token);
       navigate('/dashboard');
+    } catch (error) {
+      console.error('Login failed:', error.message);
+      setErrors({ submit: error.message });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
