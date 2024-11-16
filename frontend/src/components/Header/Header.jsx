@@ -1,6 +1,22 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 const Header = () => {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication status on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token); // Update state based on token presence
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Clear token
+    setIsAuthenticated(false); // Update authentication state
+    navigate('/login'); // Redirect to login page
+  };
+
   return (
     <header className="bg-enamel shadow-md">
       <nav className="container mx-auto px-6 py-4">
@@ -16,12 +32,22 @@ const Header = () => {
             <Link to="/dashboard" className="font-inter font-medium text-deep-moss hover:text-burnt-orange transition">
               Dashboard
             </Link>
-            <Link 
-              to="/login"
-              className="font-inter font-semibold bg-burnt-orange text-enamel px-6 py-2 rounded-lg hover:bg-deep-moss transition"
-            >
-              Login
-            </Link>
+
+            {isAuthenticated ? (
+              <button
+                onClick={handleLogout}
+                className="font-inter font-semibold bg-burnt-orange text-enamel px-6 py-2 rounded-lg hover:bg-deep-moss transition"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="font-inter font-semibold bg-burnt-orange text-enamel px-6 py-2 rounded-lg hover:bg-deep-moss transition"
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
       </nav>
